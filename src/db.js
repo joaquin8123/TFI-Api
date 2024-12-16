@@ -16,17 +16,8 @@ class Database {
           host: process.env.HOST,
           user: process.env.USER,
           password: process.env.PASSWORD,
-          database:
-            process.env.NODE_ENV === "test"
-              ? process.env.TEST_DATABASE
-              : process.env.DATABASE,
+          database: process.env.DATABASE,
         });
-        console.log(
-          "conectado a la db:",
-          process.env.NODE_ENV === "test"
-            ? process.env.TEST_DATABASE
-            : process.env.DATABASE
-        );
         this.connection.on("error", (err) => {
           console.error(
             "Error en la conexión a la base de datos:",
@@ -97,7 +88,7 @@ class Database {
     try {
       const keys = Object.keys(data);
 
-      // Verificar si hay datos para insertar
+  
       if (keys.length === 0) {
         return;
       }

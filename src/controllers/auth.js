@@ -70,40 +70,16 @@ const login = async (req, res) => {
       const token = signJWT(user);
 
       if (token) {
-        //await Audit.registerAudit({
-        // action: "LOGIN_SUCCESS",
-        //user_id: type === "user" ? user[0].id : null,
-        // client_id: type !== "user" ? user[0].id : null,
-        //details: { event: "User logged in" },
-        // });
         return sendResponse(res, "LOGIN_SUCCESS", 200, {
-          data: { token, clientId: user[0].id },
+          data: { token, clientId: user[0].id, storeId: user[0].store_id },
         });
       } else {
-        //await Audit.registerAudit({
-        //action: "SIGN_TOKEN_ERROR",
-        // user_id: user[0].id,
-        //client_id: null,
-        //details: { event: "User logged error sign token" },
-        // });
         return sendResponse(res, "SIGN_TOKEN_ERROR", 401);
       }
     } else {
-      //await Audit.registerAudit({
-      //action: "INCORRECT_PASSWORD",
-      //user_id: type === "user" ? user[0].id : null,
-      //client_id: type !== "user" ? user[0].id : null,
-      //details: { event: "User logged error incorrect password" },
-      // });
       return sendResponse(res, "INCORRECT_PASSWORD", 401);
     }
   } catch (error) {
-    await Audit.registerAudit({
-      action: "LOGIN_ERROR",
-      user_id: null,
-      client_id: null,
-      details: { event: "User logged error", error },
-    });
     return sendResponse(res, "LOGIN_ERROR", 401, { data: error });
   }
 };
@@ -180,20 +156,8 @@ const logout = async (req, res) => {
 
   try {
     let { clientId } = req.body;
-    //await Audit.registerAudit({
-    //action: "LOGIN_OUT",
-    //user_id: clientId,
-    //client_id: null,
-    //details: { event: "User logout" },
-    //});
     return sendResponse(res, "LOGOUT_SUCCESS", 200, {});
   } catch (error) {
-    //await Audit.registerAudit({
-    //action: "LOGOUT_ERROR",
-    //user_id: null,
-    //client_id: null,
-    //details: { event: "User logout error", error },
-    //});
     return sendResponse(res, "LOGOUT_ERROR", 401, { data: error });
   }
 };

@@ -32,7 +32,7 @@ class Store {
 
   static async getByCityId(cityId) {
     try {
-      const sql = `SELECT * FROM Store WHERE city_id = ? AND active=true`;
+      const sql = `SELECT Store.*, service.id AS serviceId FROM Store JOIN Service ON Store.id = Service.store_id WHERE city_id = ? AND active=true`;
       const rows = await db.query(sql, [cityId]);
       return rows;
     } catch (error) {

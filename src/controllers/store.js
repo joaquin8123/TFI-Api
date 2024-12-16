@@ -1,12 +1,10 @@
 const logging = require("../config/logging");
 const sendResponse = require("../helpers/handleResponse");
-const Reservation = require("../models/reservation");
+const Reservation = require("../models/Reservation");
 const Store = require("../models/Store");
-const City = require("../models/city");
-const Service = require("../models/service");
+const Service = require("../models/Service");
 const NAMESPACE = "Store Controller";
 
-// Crear turno
 const createReservation = async (req, res) => {
   try {
     logging.info(NAMESPACE, "Create Reservation");
@@ -40,7 +38,6 @@ const createReservation = async (req, res) => {
   }
 };
 
-// Eliminar turno
 const deleteReservation = async (req, res) => {
   try {
     logging.info(NAMESPACE, "Delete Reservation");
@@ -58,8 +55,6 @@ const deleteReservation = async (req, res) => {
     return sendResponse(res, "DELETE_RESERVATION_ERROR", 500, { data: error });
   }
 };
-
-// Editar turno
 const updateReservation = async (req, res) => {
   try {
     logging.info(NAMESPACE, "Update Reservation");
@@ -83,7 +78,6 @@ const updateReservation = async (req, res) => {
   }
 };
 
-// Cancelar turno
 const cancelReservation = async (req, res) => {
   try {
     logging.info(NAMESPACE, "Cancel Reservation");
@@ -102,7 +96,6 @@ const cancelReservation = async (req, res) => {
   }
 };
 
-// Obtener todas las tiendas por ID
 const getShopById = async (req, res) => {
   try {
     logging.info(NAMESPACE, "Get Shop by ID");
@@ -121,7 +114,6 @@ const getShopById = async (req, res) => {
   }
 };
 
-// Actualizar información de la tienda
 const updateShopData = async (req, res) => {
   try {
     logging.info(NAMESPACE, "Update Shop Data");
@@ -145,8 +137,6 @@ const updateShopData = async (req, res) => {
   }
 };
 
-//NUEVOS
-// Obtener todas las tiendas en una ciudad
 const getStoreByCityId = async (req, res) => {
   try {
     logging.info(NAMESPACE, "Get Store by city");
@@ -172,6 +162,32 @@ const getAllStores = async (req, res) => {
   }
 };
 
+const getServicesByStoreId = async (req, res) => {
+  try {
+    logging.info(NAMESPACE, "Get Services by Store ID");
+    const { storeId } = req.params;
+    const services = await Service.getByStore(storeId);
+    return sendResponse(res, "SERVICES_FOUND", 200, { data: services });
+  } catch (error) {
+    console.error(error);
+    return sendResponse(res, "GET_SERVICES_ERROR", 500, { data: error });
+  }
+};
+
+const updateServiceStatus = async (req, res) => {
+  try {
+    logging.info(NAMESPACE, "Update Service Status");
+    const { reservationId, status } = req.body;
+    const updated = await Service.updateServiceStatus(reservationId, status);
+    return sendResponse(res, "SERVICE_STATUS_UPDATED", 200, { data: updated });
+  } catch (error) {
+    console.error(error);
+    return sendResponse(res, "UPDATE_SERVICE_STATUS_ERROR", 500, {
+      data: error,
+    });
+  }
+};
+
 module.exports = {
   createReservation,
   deleteReservation,
@@ -181,4 +197,6 @@ module.exports = {
   updateShopData,
   getStoreByCityId,
   getAllStores,
+  getServicesByStoreId,
+  updateServiceStatus,
 };

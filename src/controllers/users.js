@@ -37,8 +37,22 @@ const updateUser = async (req, res) => {
   }
 };
 
+const getServicesByUserId = async (req, res) => {
+  try {
+    logging.info(NAMESPACE, "getServicesByUserId Method");
+    const userId = req.params.userId;
+    const services = await User.getServicesByUserId(userId);
+    return sendResponse(res, "GET_SERVICES_BY_USER_ID", 200, {
+      data: { services },
+    });
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
 module.exports = {
   getAllUser,
   updateUser,
   getUserById,
+  getServicesByUserId,
 };

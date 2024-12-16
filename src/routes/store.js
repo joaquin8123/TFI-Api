@@ -4,8 +4,8 @@ const extractJWT = require("../middlewares/extractJWT");
 const storeController = require("../controllers/store");
 
 router.get("/:cityId", storeController.getStoreByCityId);
+router.get("/:storeId/services", storeController.getServicesByStoreId);
 router.get("/", storeController.getAllStores);
-//router.post("/", extractJWT, orderController.createOrder);
-//router.put("/", extractJWT, orderController.updateOrder);
+router.put("/", storeController.updateServiceStatus);
 
 module.exports = router;

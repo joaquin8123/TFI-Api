@@ -1,7 +1,7 @@
 const db = require("../db");
 
 class Reservation {
-  constructor({ userId, storeId, serviceId, date, time, status }) {
+  constructor({ userId, storeId, serviceId, date, time = 1, status }) {
     this.userId = userId;
     this.storeId = storeId;
     this.serviceId = serviceId;
@@ -94,6 +94,25 @@ class Reservation {
       return result;
     } catch (error) {
       console.error("Error updating reservation status:", error);
+      throw error;
+    }
+  }
+
+  static async getOccupiedDays({ storeId, serviceId }) {
+    try {
+      const sql = `
+        SELECT DISTINCT date
+        FROM Reservation
+        WHERE store_id = ? AND service_id = ?
+          AND status != 'cancelled'
+      `;
+      const values = [storeId, serviceId];
+      const reservations = await db.query(sql, values);
+
+      const occupiedDates = reservations.map((row) => new Date(row.date));
+      return occupiedDates;
+    } catch (error) {
+      console.error("Error fetching occupied days:", error);
       throw error;
     }
   }

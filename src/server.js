@@ -12,7 +12,8 @@ const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const storeRoutes = require("./routes/store");
 const cityRoutes = require("./routes/city");
-
+const reservationRoutes = require("./routes/reservation");
+const reviewRoutes = require("./routes/review");
 const NAMESPACE = "Server";
 const app = express();
 
@@ -47,7 +48,8 @@ app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/store", storeRoutes);
 app.use("/city", cityRoutes);
-
+app.use("/reservation", reservationRoutes);
+app.use("/review", reviewRoutes);
 
 /* Error handling */
 app.use((req, res, next) => {
