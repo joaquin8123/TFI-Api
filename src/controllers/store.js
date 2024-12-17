@@ -3,6 +3,7 @@ const sendResponse = require("../helpers/handleResponse");
 const Reservation = require("../models/Reservation");
 const Store = require("../models/Store");
 const Service = require("../models/Service");
+const EventEmitter = require("../helpers/EventEmitter");
 const NAMESPACE = "Store Controller";
 
 const createReservation = async (req, res) => {
@@ -73,7 +74,6 @@ const getAllStores = async (req, res) => {
 
     return sendResponse(res, "STORE_FOUND", 200, { data: stores });
   } catch (error) {
-
     return sendResponse(res, "GETALL_STORE_ERROR", 500, { data: error });
   }
 };
@@ -94,6 +94,11 @@ const updateServiceStatus = async (req, res) => {
     logging.info(NAMESPACE, "Update Service Status");
     const { reservationId, status } = req.body;
     const updated = await Service.updateServiceStatus(reservationId, status);
+    EventEmitter.emitReservationUpdated({
+      type: "SERVICE_STATUS_CHANGE",
+      serviceId: reservationId,
+      newStatus: status,
+    });
     return sendResponse(res, "SERVICE_STATUS_UPDATED", 200, { data: updated });
   } catch (error) {
     return sendResponse(res, "UPDATE_SERVICE_STATUS_ERROR", 500, {

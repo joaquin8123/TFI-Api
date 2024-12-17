@@ -3,8 +3,8 @@ class EventEmitter {
     this.io = io;
   }
 
-  emitOrderUpdated(order) {
-    this.io.emit("order-updated", order);
+  emitReservationUpdated(reservation) {
+    this.io.emit("SERVICE_STATUS_CHANGE", reservation);
   }
 }
 

@@ -64,9 +64,20 @@ const httpServer = http.createServer(app);
 const io = socketIO(httpServer);
 
 app.set("socketio", io);
-httpServer.listen(config.server.port, () =>
+io.on("connection", (socket) => {
+  logging.info(NAMESPACE, `Cliente conectado: ${socket.id}`);
+
+  socket.on("disconnect", () => {
+    logging.info(NAMESPACE, `Cliente desconectado: ${socket.id}`);
+  });
+});
+httpServer.listen(config.server.port, () => {
   logging.info(
     NAMESPACE,
     `API [Online] => Running on: ${config.server.hostname}:${config.server.port}`
-  )
-);
+  );
+  logging.info(
+    NAMESPACE,
+    `WebSocket URL => ws://${config.server.hostname}:${config.server.port}`
+  );
+});
