@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const logging = require("../config/logging");
 const sendResponse = require("../helpers/handleResponse");
 
-const User = require("../models/user");
+const User = require("../models/User");
 const signJWT = require("../helpers/signJWT");
 const NAMESPACE = "Auth Controller";
 const SALT_ROUNDS = 10;
@@ -45,7 +45,6 @@ const register = async (req, res) => {
       data: registeredUser,
     });
   } catch (error) {
-    console.error("Error in register:", error);
     return sendResponse(res, "REGISTER_ERROR", 500, { data: error });
   }
 };
@@ -151,15 +150,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
-  logging.info(NAMESPACE, "Logout Method");
-
-  try {
-    let { clientId } = req.body;
-    return sendResponse(res, "LOGOUT_SUCCESS", 200, {});
-  } catch (error) {
-    return sendResponse(res, "LOGOUT_ERROR", 401, { data: error });
-  }
-};
-
-module.exports = { register, login, resetPassword, logout };
+module.exports = { register, login, resetPassword };

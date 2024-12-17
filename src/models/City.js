@@ -17,7 +17,6 @@ class City {
       const result = await db.query(sql, values);
       return result;
     } catch (error) {
-      console.error("Error creating city:", error);
       throw error;
     }
   }
@@ -28,7 +27,6 @@ class City {
       const rows = await db.query(sql, [cityId]);
       return rows[0];
     } catch (error) {
-      console.error("Error fetching city by ID:", error);
       throw error;
     }
   }
@@ -39,7 +37,7 @@ class City {
       const rows = await db.query(sql, [name]);
       return rows[0];
     } catch (error) {
-      console.error("Error fetching city by ID:", error);
+
       throw error;
     }
   }
@@ -50,7 +48,6 @@ class City {
       const rows = await db.query(sql);
       return rows;
     } catch (error) {
-      console.error("Error fetching all cities:", error);
       throw error;
     }
   }

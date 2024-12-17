@@ -27,7 +27,6 @@ class Review {
       const result = await db.query(sql, values);
       return result;
     } catch (error) {
-      console.error("Error creating review:", error);
       throw error;
     }
   }

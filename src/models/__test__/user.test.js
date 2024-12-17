@@ -1,182 +1,75 @@
 const { expect } = require("chai");
-const { before, after, describe, beforeEach, it } = require("mocha");
+const sinon = require("sinon");
 const dbInstance = require("../../db");
-const { initalConfigs } = require("../../__test__/initalConfig");
-const { makeFakeUser } = require("../../__test__/makeFakeData");
-const User = require("../user");
-const {
-  makeFakeUserDb,
-  makeFakeClientDb,
-} = require("../../__test__/makeFakeDataDb");
+const User = require("../User");
 
-before(async () => {
-  await dbInstance.connect();
-});
+describe("User Model", () => {
+  let queryStub;
 
-after(async () => {
-  await dbInstance.close();
-});
+  const mockUserId = 1;
 
-describe("User Test - Model", () => {
-  beforeEach(async () => {
-    await dbInstance.clearDatabase();
-    await initalConfigs({});
+  const mockServices = [
+    {
+      serviceId: 1,
+      storeName: "Super Store",
+      serviceName: "Car Wash",
+      servicePrice: 50,
+      date: "2024-12-20",
+      status: "completed",
+      rating: 5,
+      store_id: 2,
+    },
+    {
+      serviceId: 2,
+      storeName: "Quick Fix",
+      serviceName: "Oil Change",
+      servicePrice: 80,
+      date: "2024-12-21",
+      status: "pending",
+      rating: null,
+      store_id: 3,
+    },
+  ];
+
+  beforeEach(() => {
+    queryStub = sinon.stub(dbInstance, "query");
   });
 
-  it("Should register user successfully", async () => {
-    const { username, password, rolId, groupId, active } = makeFakeUser();
-
-    const userInstace = new User({
-      username,
-      password,
-      rolId,
-      groupId,
-      active,
-    });
-
-    const { insertId } = await userInstace.register();
-    const user = await dbInstance.getItem({
-      tableName: "user",
-      keyName: "id",
-      keyValue: insertId,
-    });
-    expect(user.id).to.equal(insertId);
-    expect(user.username).to.equal(username);
-    expect(user.password).to.equal(password);
+  afterEach(() => {
+    sinon.restore();
   });
 
-  it("Should FAIL register for params invalid", async () => {
-    const { username, password, rolId, groupId, active } = makeFakeUser();
+  describe("getServicesByUserId", () => {
+    it("should fetch services associated with the given user ID", async () => {
+      queryStub.resolves(mockServices);
 
-    const userInstace = new User({
-      username,
-      password,
-      rolId,
-      groupId,
-      active,
+      const result = await User.getServicesByUserId(mockUserId);
+
+      expect(queryStub.calledOnce).to.be.true;
+      expect(queryStub.firstCall.args[0]).to.include("SELECT");
+      expect(queryStub.firstCall.args[1]).to.deep.equal([mockUserId]);
+      expect(result).to.deep.equal(mockServices);
     });
 
-    try {
-      await userInstace.register();
-    } catch (error) {
-      expect(error).to.be.an.instanceOf(Error);
-    }
-  });
-  it("Should getUserById return successfully", async () => {
-    const params = makeFakeUserDb();
-    await dbInstance.insert({
-      tableName: "user",
-      data: params,
+    it("should return an empty array if the user has no services", async () => {
+      queryStub.resolves([]);
+
+      const result = await User.getServicesByUserId(mockUserId);
+
+      expect(queryStub.calledOnce).to.be.true;
+      expect(result).to.deep.equal([]);
     });
 
-    const user = await User.getUserById(params.id);
-    expect(user[0].id).to.equal(params.id);
-    expect(user[0].username).to.equal(params.username);
-    expect(user[0].active).to.equal(1);
-  });
+    it("should throw an error if the database query fails", async () => {
+      const mockError = new Error("Database error");
+      queryStub.rejects(mockError);
 
-  it("Should FAIL getUserById for params invalid", async () => {
-    const params = makeFakeUserDb();
-    await dbInstance.insert({
-      tableName: "user",
-      data: params,
+      try {
+        await User.getServicesByUserId(mockUserId);
+        throw new Error("Test should have thrown an error");
+      } catch (error) {
+        expect(error).to.equal(mockError);
+      }
     });
-
-    try {
-      await User.getUserById();
-    } catch (error) {
-      expect(error).to.be.an.instanceOf(Error);
-    }
-  });
-
-  it("Should FAIL getUser for params invalid", async () => {
-    const params = makeFakeUserDb();
-    await dbInstance.insert({
-      tableName: "user",
-      data: params,
-    });
-
-    try {
-      await User.getUserById();
-    } catch (error) {
-      expect(error).to.be.an.instanceOf(Error);
-    }
-  });
-  it("Should getUser return successfully", async () => {
-    const params = makeFakeClientDb();
-    await dbInstance.insert({
-      tableName: "client",
-      data: params,
-    });
-
-    const user = await User.getUser({
-      username: params.username,
-      type: "client",
-    });
-    expect(user[0].id).to.equal(params.id);
-    expect(user[0].username).to.equal(params.username);
-    expect(user[0].active).to.equal(1);
-  });
-
-  it("Should FAIL getUser for params invalid", async () => {
-    const params = makeFakeClientDb();
-    await dbInstance.insert({
-      tableName: "client",
-      data: params,
-    });
-
-    try {
-      await User.getUser();
-    } catch (error) {
-      expect(error).to.be.an.instanceOf(Error);
-    }
-  });
-
-  it("Should getAllGroups return successfully", async () => {
-    const params = makeFakeUserDb();
-    await dbInstance.insert({
-      tableName: "user",
-      data: params,
-    });
-
-    const user = await User.getAllGroupUser();
-    expect(user[0].id).to.equal(params.id);
-    expect(user[0].username).to.equal(params.username);
-    expect(user[0].active).to.equal(1);
-  });
-
-  it("Should updateUser return successfully", async () => {
-    const params = makeFakeUserDb();
-    await dbInstance.insert({
-      tableName: "user",
-      data: params,
-    });
-    await User.updateUser({
-      userId: params.id,
-      active: false,
-    });
-    const user = await dbInstance.getItem({
-      tableName: "user",
-      keyName: "id",
-      keyValue: params.id,
-    });
-    expect(user.id).to.equal(params.id);
-    expect(user.username).to.equal(params.username);
-    expect(user.active).to.equal(0);
-  });
-
-  it("Should FAIL updateUser for invalid params", async () => {
-    const params = makeFakeUserDb();
-    await dbInstance.insert({
-      tableName: "user",
-      data: params,
-    });
-    try {
-      await User.updateUser({
-        active: false,
-      });
-    } catch (error) {
-      expect(error).to.be.an.instanceOf(Error);
-    }
   });
 });

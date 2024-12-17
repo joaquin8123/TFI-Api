@@ -10,7 +10,6 @@ const getCityByName = async (req, res) => {
     const city = await City.getByName(name);
     return sendResponse(res, "CITY_FOUND", 200, { data: city });
   } catch (error) {
-    console.error(error);
     return sendResponse(res, "GET_STORE_ERROR", 500, { data: error });
   }
 };

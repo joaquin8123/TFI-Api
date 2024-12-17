@@ -27,7 +27,6 @@ class Reservation {
       const result = await db.query(sql, values);
       return result;
     } catch (error) {
-      console.error("Error creating reservation:", error);
       throw error;
     }
   }
@@ -42,7 +41,6 @@ class Reservation {
       const rows = await db.query(sql, values);
       return rows[0];
     } catch (error) {
-      console.error("Error fetching reservation:", error);
       throw error;
     }
   }
@@ -53,7 +51,6 @@ class Reservation {
       const result = await db.query(sql, [reservationId]);
       return result.affectedRows > 0;
     } catch (error) {
-      console.error("Error deleting reservation:", error);
       throw error;
     }
   }
@@ -81,7 +78,7 @@ class Reservation {
       const result = await db.query(sql, values);
       return result;
     } catch (error) {
-      console.error("Error updating reservation:", error);
+
       throw error;
     }
   }
@@ -93,7 +90,6 @@ class Reservation {
       const result = await db.query(sql, values);
       return result;
     } catch (error) {
-      console.error("Error updating reservation status:", error);
       throw error;
     }
   }
@@ -112,7 +108,6 @@ class Reservation {
       const occupiedDates = reservations.map((row) => new Date(row.date));
       return occupiedDates;
     } catch (error) {
-      console.error("Error fetching occupied days:", error);
       throw error;
     }
   }

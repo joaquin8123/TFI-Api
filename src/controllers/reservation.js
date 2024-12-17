@@ -12,7 +12,8 @@ const occupiedDays = async (req, res) => {
       data: { days },
     });
   } catch (error) {
-    console.error("Error:", error);
+    logging.error(NAMESPACE, "Error in getOccupiedDays", error);
+    return sendResponse(res, "GET_OCCUPIED_DAYS_ERROR", 500, { data: error });
   }
 };
 
@@ -33,14 +34,15 @@ const create = async (req, res) => {
       data: { reservationCreated },
     });
   } catch (error) {
-    console.error("Error:", error);
+    logging.error(NAMESPACE, "Error in create", error);
+    return sendResponse(res, "CREATE_RESERVATION_ERROR", 500, { data: error });
   }
 };
 
 function formatToYYYYMMDD(date) {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses van de 0 a 11
-  const day = String(date.getDate()).padStart(2, '0'); // Asegura siempre 2 dígitos
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}${month}${day}`;
 }
 

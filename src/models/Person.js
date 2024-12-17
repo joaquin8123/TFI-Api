@@ -26,7 +26,6 @@ class Person {
       const rows = await db.query(sql, values);
       return rows;
     } catch (error) {
-      console.error("Error fetching orders:", error);
       throw error;
     }
   }
@@ -38,7 +37,6 @@ class Person {
       const rows = await db.query(sql);
       return rows;
     } catch (error) {
-      console.error("Error fetching user:", error);
       throw error;
     }
   }

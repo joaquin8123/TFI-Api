@@ -7,7 +7,6 @@
     "create-database": "node src/test/create_db.js",
     "down-database": "node src/test/down_db.js",
     "test": "cross-env TZ=utc NODE_ENV=test c8 mocha -t 10000 --require esm --recursive ./src/**/*.test.js --exit",
-    "test:2": "cross-env TZ=utc NODE_ENV=test mocha -t 10000 --recursive ./src/controllers/__test__/auth.test.js",
     "dev": "nodemon src/server.js"
   },
   "author": "",
@@ -16,7 +15,7 @@
     "bcrypt": "^5.0.1",
     "body-parser": "^1.19.1",
     "c8": "^7.11.2",
-    "chai": "^4.2.0",
+    "chai": "^4.5.0",
     "chai-as-promised": "^7.1.1",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",

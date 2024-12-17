@@ -25,7 +25,6 @@ class Store {
       const result = await db.query(sql, values);
       return result;
     } catch (error) {
-      console.error("Error creating shop:", error);
       throw error;
     }
   }
@@ -36,7 +35,6 @@ class Store {
       const rows = await db.query(sql, [cityId]);
       return rows;
     } catch (error) {
-      console.error("Error fetching shops by city:", error);
       throw error;
     }
   }
@@ -47,7 +45,6 @@ class Store {
       const rows = await db.query(sql, [shopId]);
       return rows[0];
     } catch (error) {
-      console.error("Error fetching shop by ID:", error);
       throw error;
     }
   }
@@ -75,7 +72,6 @@ class Store {
       const result = await db.query(sql, values);
       return result;
     } catch (error) {
-      console.error("Error updating shop:", error);
       throw error;
     }
   }

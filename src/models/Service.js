@@ -25,7 +25,6 @@ class Service {
       const result = await db.query(sql, values);
       return result;
     } catch (error) {
-      console.error("Error creating service:", error);
       throw error;
     }
   }
@@ -36,7 +35,6 @@ class Service {
       const rows = await db.query(sql, [serviceId]);
       return rows[0];
     } catch (error) {
-      console.error("Error fetching service by ID:", error);
       throw error;
     }
   }
@@ -58,7 +56,6 @@ WHERE reservation.store_id = ?`;
       const rows = await db.query(sql, [storeId]);
       return rows;
     } catch (error) {
-      console.error("Error fetching services by store:", error);
       throw error;
     }
   }
@@ -69,7 +66,7 @@ WHERE reservation.store_id = ?`;
       const result = await db.query(sql, [status, reservationId]);
       return result;
     } catch (error) {
-      console.error("Error updating service status:", error);
+
       throw error;
     }
   }

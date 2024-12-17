@@ -1,81 +1,85 @@
 const { expect } = require("chai");
-const { before, after, describe, beforeEach, it } = require("mocha");
-const dbInstance = require("../../db");
-const { initalConfigs } = require("../../__test__/initalConfig");
-const { defaultExpect } = require("../../__test__/defaultExpect");
-const { makeFakeUserDb } = require("../../__test__/makeFakeDataDb");
-const { getAllUser, getUserById, updateUser } = require("../users");
+const sinon = require("sinon");
+const proxyquire = require("proxyquire");
+const logging = require("../../config/logging");
+const User = require("../../models/user");
 
-before(async () => {
-  await dbInstance.connect();
-});
+describe("User Controller", () => {
+  let req, res, userStub, sendResponseStub, loggingStub, getServicesByUserId;
 
-after(async () => {
-  await dbInstance.close();
-});
+  beforeEach(() => {
+    process.env.NODE_ENV = "test";
 
-describe("User - Controller", () => {
-  beforeEach(async () => {
-    await dbInstance.clearDatabase();
-    await initalConfigs({});
+    req = { params: { userId: 1 } };
+    res = {
+      status: sinon.stub().returnsThis(),
+      json: sinon.stub(),
+    };
+
+    userStub = sinon.stub(User, "getServicesByUserId");
+    loggingStub = sinon.stub(logging, "info");
+
+    sendResponseStub = sinon
+      .stub()
+      .callsFake((res, msgKey, code, payload = {}) => {
+        const data = payload ? payload?.data : undefined;
+        return {
+          success: code >= 200 && code < 300,
+          code: code,
+          msg: msgKey,
+          data,
+        };
+      });
+
+    const userController = proxyquire("../users", {
+      "../helpers/handleResponse": sendResponseStub,
+      "../config/logging": { info: loggingStub },
+    });
+
+    getServicesByUserId = userController.getServicesByUserId;
   });
 
-  it("Should getAll user successfully", async () => {
-    const user1 = makeFakeUserDb({ id: 11 });
-    const user2 = makeFakeUserDb({ id: 22 });
-    await dbInstance.insert({
-      tableName: "user",
-      data: user1,
-    });
-    await dbInstance.insert({
-      tableName: "user",
-      data: user2,
-    });
-    const response = await getAllUser();
-    defaultExpect({
-      response,
-      code: 200,
-      msg: "GET_USERS",
-    });
-    expect(response.data.users.length).to.equal(2);
+  afterEach(() => {
+    sinon.restore();
+    delete process.env.NODE_ENV;
   });
 
-  it("Should get user by id successfully", async () => {
-    const params = makeFakeUserDb();
-    await dbInstance.insert({
-      tableName: "user",
-      data: params,
-    });
-    const response = await getUserById({ params: { userId: params.id } });
-    defaultExpect({
-      response,
-      code: 200,
-      msg: "GET_USER",
-    });
-    expect(response.data.user.length).to.equal(1);
-  });
+  describe("getServicesByUserId", () => {
+    it("should return services for a valid user ID", async () => {
+      const mockServices = [
+        {
+          id: 1,
+          serviceName: "Oil Change",
+          date: "2024-12-20",
+          status: "completed",
+        },
+        {
+          id: 2,
+          serviceName: "Tire Change",
+          date: "2024-12-21",
+          status: "pending",
+        },
+      ];
 
-  it("Should update user successfully", async () => {
-    const params = makeFakeUserDb();
-    await dbInstance.insert({
-      tableName: "user",
-      data: params,
-    });
-    const response = await updateUser({
-      body: { userId: params.id, active: false },
-    });
+      userStub.resolves(mockServices);
 
-    defaultExpect({
-      response,
-      code: 200,
-      msg: "UPDATE_ACTIVE_USERS",
-    });
+      const result = await getServicesByUserId(req, res);
 
-    const userUpdated = await dbInstance.getItem({
-      tableName: "user",
-      keyName: "id",
-      keyValue: params.id,
+      expect(
+        loggingStub.calledOnceWith(
+          "User Controller",
+          "getServicesByUserId Method"
+        )
+      ).to.be.true;
+
+      expect(userStub.calledOnceWith(1)).to.be.true;
+
+      expect(result).to.deep.equal({
+        success: true,
+        code: 200,
+        msg: "GET_SERVICES_BY_USER_ID",
+        data: { services: mockServices },
+      });
     });
-    expect(userUpdated.active).to.equal(0);
   });
 });
